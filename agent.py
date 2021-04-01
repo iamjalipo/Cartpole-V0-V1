@@ -1,11 +1,17 @@
 import gym
 import torch
+from tqdm import tqdm
+import time
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from dataclasses import dataclass
 from typing import Any
 from random import sample
+import wandb
+from collections import deque
+
+
 
 @dataclass
 class Sarsd:
@@ -40,7 +46,7 @@ class Model(nn.Module):
             torch.nn.Linear(256 , num_actions)
             # we dont need activation , we reperesent real numbers
         )
-        self.opt = optim.Adam(self.net.parameters() , lr = 1e-4)
+        self.opt = optim.Adam(self.net.parameters() , lr = 1e-3)
 
     def forward(self , x):
         return self.net(x)
@@ -49,11 +55,11 @@ class Model(nn.Module):
 class ReplayBuffer:
     def __init__(self , buffer_size = 100000):
         self.buffer_size = buffer_size
-        self.buffer = []
+        self.buffer = deque(maxlen = buffer_size)
 
     def insert(self , sars):
         self.buffer.append(sars)
-        self.buffer = self.buffer[-self.buffer_size:]
+        #self.buffer = self.buffer[-self.buffer_size:]
 
     def sample(self , num_samples):
         assert num_samples <= len(self.buffer)
@@ -76,14 +82,19 @@ def train_step(model , state_transitions , tgt , num_actions):
     model.opt.zero_grad()
     qvals = model(cur_state) #(N , num_action)
     one_hot_actions = F.one_hot(torch.LongTensor(actions) , num_actions)
-
-    import ipdb ; ipdb.set_trace()  
-    loss = (rewards + mask[:,0]*qvals_next - torch.sum(qvals*one_hot_actions,-1)).mean()
+ 
+    loss = (rewards + ((mask[:,0]*qvals_next) - torch.sum(qvals*one_hot_actions,-1))).mean()
     loss.backward()
     model.opt.step()
     return loss
 
 if __name__ == '__main__' :
+    wandb.init(project= 'first-DQN' , name = 'DQN-cartpole-v1')
+    min_rb_size = 10000
+    sample_size = 2500
+    env_step_before_train = 100
+    tgt_model_update = 50
+
     env = gym.make("CartPole-v1")
     last_observation = env.reset()
 
@@ -92,12 +103,16 @@ if __name__ == '__main__' :
    
 
     rb = ReplayBuffer()
-
+    step_since_train = 0
+    epochs_since_tgt = 0
+    step_num = -1*min_rb_size
     #qvals = m(torch.Tensor(observation))
     #import ipdb ; ipdb.set_trace()
-   
+    
+    tq = tqdm()
     try: 
         while True:
+            tq.update(1)
         #env.render()
         #time.sleep(0.1)
             action = env.action_space.sample()
@@ -111,9 +126,23 @@ if __name__ == '__main__' :
             if done:
                     observation= env.reset
 
-            if len(rb.buffer) > 5000:
-                train_step(m , rb.sample(1000) , tgt , env.action_space.n)    
-    
+            step_since_train += 1
+            step_num += 1
+
+            if len(rb.buffer) > min_rb_size and step_since_train > env_step_before_train:
+                #epochs_since_tgt +=1
+                loss = train_step(m , rb.sample(sample_size) , tgt , env.action_space.n) 
+                wandb.log({'loss': loss.detach().item()} , step = step_num)
+                #print(step_num , loss.detach().item()) 
+                
+                epochs_since_tgt +=1 
+                if epochs_since_tgt > tgt_model_update :
+                    print('updating target model' , 'and loss is: ' , loss)
+                    update_tgt_model(m , tgt)
+                    epochs_since_tgt = 0
+                step_since_train = 0  
+                
+
     except KeyboardInterrupt:
         pass
 
