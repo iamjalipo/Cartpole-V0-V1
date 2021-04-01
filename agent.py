@@ -1,16 +1,18 @@
 import gym
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import torch.nn.functional as F
 from dataclasses import dataclass
 from typing import Any
 from random import sample
 
 @dataclass
-class Sars:
+class Sarsd:
     state : Any
     action : int
     reward : float
+    done : bool
     next_state : Any
 
 class DQNAgent:
@@ -38,9 +40,11 @@ class Model(nn.Module):
             torch.nn.Linear(256 , num_actions)
             # we dont need activation , we reperesent real numbers
         )
+        self.optim = optim.Adam(lr = 1e-4)
 
     def forward(self , x):
         return self.net(x)
+
 
 class ReplayBuffer:
     def __init__(self , buffer_size = 100000):
@@ -55,11 +59,33 @@ class ReplayBuffer:
         assert num_samples <= len(self.buffer)
         return sample(self.buffer , num_samples)
 
+def update_tgt_model(m , tgt):
+    tgt.load_state_dict(m.state_dict())
+
+def train_step(model , state_transitions , tgt):
+    cur_state = torch.stack([s.state for s in state_transitions])
+    rewards = torch.stack([s.reward for s in state_transitions])
+    mask = torch.stack([0 if s.done else 1 for s in state_transitions])
+    next_states = torch.stack([s.next_state for s in state_transitions])
+    actions = [s.action for s in state_transitions]
+    #not discount factor yet
+    with torch.no_grad():
+        qvals_next = tgt(next_states).max(-1) #(N , num_actions)
+
+    qvals = model(cur_state) #(N , num_action)
+    one_hot_actions = F.one_hot(torch.LongTensor(actions , num_actions))
+
+    rewards + qvals_next - qvlas*one_hot_actions
+
+
 if __name__ == '__main__' :
     env = gym.make("CartPole-v1")
     last_observation = env.reset()
 
     m = Model(env.observation_space.shape , env.action_space.n)
+    tgt = Model(env.observation_space.shape , env.action_space.n)
+   
+
     rb = ReplayBuffer()
 
     #qvals = m(torch.Tensor(observation))
@@ -74,7 +100,7 @@ if __name__ == '__main__' :
         #env.observation_space.shape to get shape of observation
             observation, reward , done , info = env.step(action)
             
-            rb.insert(Sars(last_observation,action, reward , observation))
+            rb.insert(Sarsd(last_observation,action, reward , observation , done))
             last_observation = observation
 
             if done:
