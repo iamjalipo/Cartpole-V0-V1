@@ -12,8 +12,8 @@ class Sarsd:
     state : Any
     action : int
     reward : float
-    done : bool
     next_state : Any
+    done : bool
 
 class DQNAgent:
     def __init__(self , model):
@@ -21,11 +21,11 @@ class DQNAgent:
 
     def get_actions(self , observation):
       # observation shape is (N, 4)
-      qvals = self.model(observation)
+      q_vals = self.model(observation)
 
       # q_vals shape (N, 2)
 
-      return q_vals.max(-1)
+      return q_vals.max(-1)[1]
 
 class Model(nn.Module):
     def __init__(self , obs_shape , num_actions):
@@ -40,7 +40,7 @@ class Model(nn.Module):
             torch.nn.Linear(256 , num_actions)
             # we dont need activation , we reperesent real numbers
         )
-        self.optim = optim.Adam(lr = 1e-4)
+        self.opt = optim.Adam(self.net.parameters() , lr = 1e-4)
 
     def forward(self , x):
         return self.net(x)
@@ -62,21 +62,26 @@ class ReplayBuffer:
 def update_tgt_model(m , tgt):
     tgt.load_state_dict(m.state_dict())
 
-def train_step(model , state_transitions , tgt):
-    cur_state = torch.stack([s.state for s in state_transitions])
-    rewards = torch.stack([s.reward for s in state_transitions])
-    mask = torch.stack([0 if s.done else 1 for s in state_transitions])
-    next_states = torch.stack([s.next_state for s in state_transitions])
+def train_step(model , state_transitions , tgt , num_actions):  
+    cur_state = torch.stack(([torch.Tensor(s.state) for s in state_transitions]))
+    rewards = torch.stack(([torch.Tensor([s.reward]) for s in state_transitions]))
+    mask = torch.stack(([torch.Tensor([0]) if s.done else torch.Tensor([1]) for s in state_transitions]))
+    next_states = torch.stack(([torch.Tensor(s.next_state) for s in state_transitions]))
     actions = [s.action for s in state_transitions]
-    #not discount factor yet
+    #not discount factor yetn
+
     with torch.no_grad():
-        qvals_next = tgt(next_states).max(-1) #(N , num_actions)
+        qvals_next = tgt(next_states).max(-1)[0] #(N , num_actions)
 
+    model.opt.zero_grad()
     qvals = model(cur_state) #(N , num_action)
-    one_hot_actions = F.one_hot(torch.LongTensor(actions , num_actions))
+    one_hot_actions = F.one_hot(torch.LongTensor(actions) , num_actions)
 
-    rewards + qvals_next - qvlas*one_hot_actions
-
+    import ipdb ; ipdb.set_trace()  
+    loss = (rewards + mask[:,0]*qvals_next - torch.sum(qvals*one_hot_actions,-1)).mean()
+    loss.backward()
+    model.opt.step()
+    return loss
 
 if __name__ == '__main__' :
     env = gym.make("CartPole-v1")
@@ -107,7 +112,7 @@ if __name__ == '__main__' :
                     observation= env.reset
 
             if len(rb.buffer) > 5000:
-                import ipdb ; ipdb.set_trace()        
+                train_step(m , rb.sample(1000) , tgt , env.action_space.n)    
     
     except KeyboardInterrupt:
         pass
