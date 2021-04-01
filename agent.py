@@ -42,12 +42,12 @@ class Model(nn.Module):
         self.num_actions = num_actions
 
         self.net = torch.nn.Sequential(
-            torch.nn.Linear(obs_shape[0] , 256),
+            torch.nn.Linear(obs_shape[0] , 32),
             torch.nn.ReLU(),
-            torch.nn.Linear(256 , num_actions)
+            torch.nn.Linear(32 , num_actions)
             # we dont need activation , we reperesent real numbers
         )
-        self.opt = optim.Adam(self.net.parameters() , lr = 1e-3)
+        self.opt = optim.Adam(self.net.parameters() , lr = 1e-4)
 
     def forward(self , x):
         return self.net(x)
@@ -97,7 +97,7 @@ if __name__ == '__main__' :
     eps_min = 0.01
     eps_decay = 0.999995
     env_step_before_train = 100
-    tgt_model_update = 50
+    tgt_model_update = 150
 
     env = gym.make("CartPole-v1")
     last_observation = env.reset()
@@ -132,6 +132,8 @@ if __name__ == '__main__' :
         #env.observation_space.shape to get shape of observation
             observation, reward , done , info = env.step(action)
             rolling_reward += reward
+
+            reward = reward/100.0
             
             rb.insert(Sarsd(last_observation,action, reward , observation , done))
             last_observation = observation
@@ -156,7 +158,7 @@ if __name__ == '__main__' :
                     print('updating target model' , 'and loss is: ' , loss)
                     update_tgt_model(m , tgt)
                     epochs_since_tgt = 0
-                    torch.save(tgt.state_dict() , f'{history/step_num}.pth')
+                    #torch.save(tgt.state_dict() , f'{history/step_num}.pth')
 
                 step_since_train = 0  
                 
