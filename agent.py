@@ -1,5 +1,6 @@
 import gym
 import torch
+import numpy as np
 from tqdm import tqdm
 import time
 import torch.nn as nn
@@ -7,7 +8,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from dataclasses import dataclass
 from typing import Any
-from random import sample
+from random import sample , random
 import wandb
 from collections import deque
 
@@ -83,7 +84,7 @@ def train_step(model , state_transitions , tgt , num_actions):
     qvals = model(cur_state) #(N , num_action)
     one_hot_actions = F.one_hot(torch.LongTensor(actions) , num_actions)
  
-    loss = (rewards + ((mask[:,0]*qvals_next) - torch.sum(qvals*one_hot_actions,-1))).mean()
+    loss = (rewards + ((mask[:,0]*qvals_next) - torch.sum(qvals*one_hot_actions,-1))**2).mean()
     loss.backward()
     model.opt.step()
     return loss
@@ -92,6 +93,9 @@ if __name__ == '__main__' :
     wandb.init(project= 'first-DQN' , name = 'DQN-cartpole-v1')
     min_rb_size = 10000
     sample_size = 2500
+    eps_max = 1.0
+    eps_min = 0.01
+    eps_decay = 0.999995
     env_step_before_train = 100
     tgt_model_update = 50
 
@@ -108,23 +112,34 @@ if __name__ == '__main__' :
     step_num = -1*min_rb_size
     #qvals = m(torch.Tensor(observation))
     #import ipdb ; ipdb.set_trace()
-    
+
+    episode_rewards = []
+    rolling_reward = 0
+
     tq = tqdm()
     try: 
         while True:
             tq.update(1)
+            eps = eps_decay**(step_num)
         #env.render()
         #time.sleep(0.1)
-            action = env.action_space.sample()
+            if random() < eps:
+                action = env.action_space.sample()
+            else :
+                action = m(torch.Tensor(last_observation)).max(-1)[-1].item()
+            
         #env.action_space.n get number of action
         #env.observation_space.shape to get shape of observation
             observation, reward , done , info = env.step(action)
+            rolling_reward += reward
             
             rb.insert(Sarsd(last_observation,action, reward , observation , done))
             last_observation = observation
 
             if done:
-                    observation= env.reset
+                episode_rewards.append(rolling_reward)
+                rolling_reward = 0
+                observation= env.reset
 
             step_since_train += 1
             step_num += 1
@@ -132,14 +147,17 @@ if __name__ == '__main__' :
             if len(rb.buffer) > min_rb_size and step_since_train > env_step_before_train:
                 #epochs_since_tgt +=1
                 loss = train_step(m , rb.sample(sample_size) , tgt , env.action_space.n) 
-                wandb.log({'loss': loss.detach().item()} , step = step_num)
+                wandb.log({'loss': loss.detach().item() , 'eps' : eps , 'avg_reward' : np.mean(episode_rewards)} , step = step_num)
                 #print(step_num , loss.detach().item()) 
                 
+                episode_rewards = []
                 epochs_since_tgt +=1 
                 if epochs_since_tgt > tgt_model_update :
                     print('updating target model' , 'and loss is: ' , loss)
                     update_tgt_model(m , tgt)
                     epochs_since_tgt = 0
+                    torch.save(tgt.state_dict() , f'{history/step_num}.pth')
+
                 step_since_train = 0  
                 
 

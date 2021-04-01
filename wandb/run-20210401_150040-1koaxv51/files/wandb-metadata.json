@@ -1,0 +1,24 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.6",
+    "heartbeatAt": "2021-04-01T10:30:46.447947",
+    "startedAt": "2021-04-01T10:30:40.037056",
+    "docker": null,
+    "gpu": "GeForce 940MX",
+    "gpu_count": 1,
+    "cpu_count": 4,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "z:\\Pytorch implementation\\Pytorch\\agent.py",
+    "codePath": "agent.py",
+    "git": {
+        "remote": "https://github.com/iamjalipo/Pytorch.git",
+        "commit": "3919d785f304417a88d5e38ff13496e82da02265"
+    },
+    "email": "55076585+iamjalipo@users.noreply.github.com",
+    "root": "Z:/Pytorch implementation/Pytorch",
+    "host": "DESKTOP-26E8SVJ",
+    "username": "sarir",
+    "executable": "C:\\Users\\sarir\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+}
