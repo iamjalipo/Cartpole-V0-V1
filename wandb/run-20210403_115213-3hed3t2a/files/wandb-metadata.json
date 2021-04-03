@@ -1,0 +1,24 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.6",
+    "heartbeatAt": "2021-04-03T07:23:13.515146",
+    "startedAt": "2021-04-03T07:22:13.973040",
+    "docker": null,
+    "gpu": "GeForce 940MX",
+    "gpu_count": 1,
+    "cpu_count": 4,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "z:\\Pytorch implementation\\Pytorch\\agent.py",
+    "codePath": "agent.py",
+    "git": {
+        "remote": "https://github.com/iamjalipo/DQN-cartpole-v1-.git",
+        "commit": "3965cc9c06eb849edbaae44d4be097763aa763ce"
+    },
+    "email": "55076585+iamjalipo@users.noreply.github.com",
+    "root": "Z:/Pytorch implementation/Pytorch",
+    "host": "DESKTOP-26E8SVJ",
+    "username": "sarir",
+    "executable": "C:\\Users\\sarir\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+}

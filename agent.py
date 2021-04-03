@@ -93,8 +93,6 @@ if __name__ == '__main__' :
     wandb.init(project= 'first-DQN' , name = 'DQN-cartpole-v1')
     min_rb_size = 10000
     sample_size = 2500
-    eps_max = 1.0
-    eps_min = 0.01
     eps_decay = 0.999995
     env_step_before_train = 100
     tgt_model_update = 150
