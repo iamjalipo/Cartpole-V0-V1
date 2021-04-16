@@ -23,3 +23,13 @@ if __name__ == "__main__":
     out = net(v)
     print(net)
     print(out)
+
+
+for batch_x, batch_y in iterate_batches(data, batch_size=32): 
+    batch_x_t = torch.tensor(batch_x) 
+    batch_y_t = torch.tensor(batch_y) 
+    out_t = net(batch_x_t)
+    loss_t = loss_function(out_t, batch_y_t).
+    loss_t.backward() 
+    optimizer.step() 
+    optimizer.zero_grad()
