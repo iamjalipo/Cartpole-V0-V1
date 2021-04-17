@@ -6,8 +6,8 @@
 
 <img src="2.png" width="40%"/> <img src="1.png" width="40%"/>
 
-## when the accumulated reward reached the desired point the environment terminated \
-  the desire point for CartpoleV0 is equal to 200 and which for Cartpole-V1 is 500
+#### when the accumulated reward reached the desired point the environment terminated 
+####  the desire point for CartpoleV0 is equal to 200 and which for Cartpole-V1 is 500
 <img src="3.png" width="40%"/>
 
 
