@@ -2,7 +2,7 @@
 
 ## Results for CrossEntropy as a model-free, policy-based, and on-policy method
 
-<img src="1.png" width="33%"/> <img src="2.png" width="33%"/> <img src="3.png" width="33%"/>
+<img src="images/1.png" width="33%"/> <img src="images/2.png" width="33%"/> <img src="images/3.png" width="33%"/>
 
 
 
