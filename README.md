@@ -3,8 +3,8 @@
 ## CrossEntropy Results
 ## model-free, policy-based, and on-policy method
 
-<img src="1.png" width="50%"/> <img src="2.png" width="50%"/> \
-<img src="3.png" width="50%"/>
+<img src="1.png" width="40%"/> <img src="2.png" width="40%"/> \
+<img src="3.png" width="40%"/>
 
 
 
