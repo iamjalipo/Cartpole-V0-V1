@@ -75,8 +75,8 @@ def filter_batch(batch, percentile):
 
 
 if __name__ == "__main__":
-    wandb.init(project= 'cartpole' , name = 'CrossEntropy-cartpole-v0')
-    env = gym.make("CartPole-v0")
+    wandb.init(project= 'cartpole' , name = 'CrossEntropy-cartpole-v1')
+    env = gym.make("CartPole-v1")
     # env = gym.wrappers.Monitor(env, directory="mon", force=True)
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
@@ -97,13 +97,13 @@ if __name__ == "__main__":
         loss_v.backward()
         optimizer.step()
         wandb.log({'loss': loss_v.item() , 
-        'avg_reward' : reward_m , 'avg_bound' : reward_b} , step = iter_no)
+        'avg_reward' : reward_m , 'avg_bound' : reward_b})
         print("%d: loss=%.3f, reward_mean=%.1f, rw_bound=%.1f" % (
             iter_no, loss_v.item(), reward_m, reward_b))
         #writer.add_scalar("loss", loss_v.item(), iter_no)
         #writer.add_scalar("reward_bound", reward_b, iter_no)
         #writer.add_scalar("reward_mean", reward_m, iter_no)
-        if reward_m > 199:
+        if reward_m > 475:
             print("Solved!")
             break
     #writer.close()

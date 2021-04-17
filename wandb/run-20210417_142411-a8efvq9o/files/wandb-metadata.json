@@ -1,0 +1,24 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.6",
+    "heartbeatAt": "2021-04-17T09:54:36.704179",
+    "startedAt": "2021-04-17T09:54:11.139796",
+    "docker": null,
+    "gpu": "GeForce 940MX",
+    "gpu_count": 1,
+    "cpu_count": 4,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "z:\\Pytorch implementation\\Pytorch\\CrossEntropyCartpole.py",
+    "codePath": "CrossEntropyCartpole.py",
+    "git": {
+        "remote": "https://github.com/iamjalipo/DQN-cartpole-v1-.git",
+        "commit": "feb6ccf11e0ff711bbed395f1febb9482481695f"
+    },
+    "email": "55076585+iamjalipo@users.noreply.github.com",
+    "root": "Z:/Pytorch implementation/Pytorch",
+    "host": "DESKTOP-26E8SVJ",
+    "username": "sarir",
+    "executable": "C:\\Users\\sarir\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+}
