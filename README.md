@@ -3,9 +3,9 @@
 ## --CrossEntropy Results
 ## model-free, policy-based, and on-policy method
 
-<img src="images/1.png" width="33%"/> <img src="images/2.png" width="33%"/>
+<img src="images/1.png" width="40%"/> <img src="images/2.png" width="40%"/>
 
-<img src="2.png" width="40%"/> <img src="1.png" width="40%"/>
+<img src="images/2.png" width="40%"/> <img src="1.png" width="40%"/>
 
 #### when the accumulated rewards reach the desired point the environment terminates
 ####  the desire point for CartpoleV0 is equal to 200 and for Cartpole-V1 is 500
