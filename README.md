@@ -1,8 +1,9 @@
 # Different methods of Rl for solving Cartpole-V0 & Cartpole-V1
 
-## Results for CrossEntropy as a model-free, policy-based, and on-policy method
+## CrossEntropy Results
+## model-free, policy-based, and on-policy method
 
-<img src="1.png" width="33%"/> <img src="2.png" width="33%"/> <img src="3.png" width="33%"/>
+<img src="1.png" width="50%"/> <img src="2.png" width="50%"/> <img src="3.png" width="50%"/>
 
 
 
